@@ -1,6 +1,9 @@
 using System.Text.RegularExpressions;
 using TMPro;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,6 +19,11 @@ public class GameManager : MonoBehaviour
     public TMP_Text countText;
     public TMP_Text digitsText;
     public TMP_Text digitsBankText;
+
+    public Button BuyDigitButton;
+    public Button ResetDigitButton;
+
+    private float timeSinceAdd1;
 
     private static GameManager _instance;
     public static GameManager Ins
@@ -54,6 +62,7 @@ public class GameManager : MonoBehaviour
         //digitCount = 20;
         digits = 0;
         countBank = 0;
+        timeSinceAdd1 = 1000f;
         countText.text = count.ToString();
         digitsText.text = "";
 
@@ -63,8 +72,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float bankAdd = countBank * 1.5f * Time.deltaTime;
-        //print("bankAdd: " + bankAdd);
+        float bankAdd = countBank * 1.5f * Mathf.Clamp01(timeSinceAdd1 - 0.5f) * Time.deltaTime;
         countBank -= bankAdd;
         countBank = Mathf.Clamp(countBank, 0, Mathf.Infinity);
         count += bankAdd;
@@ -72,6 +80,8 @@ public class GameManager : MonoBehaviour
         digitsBankText.text = countBank.ToString("N0");
         if (countBank == 0) digitsBankText.text = "";
         countText.text = count.ToString("N0");
+
+        timeSinceAdd1 += Time.deltaTime;
     }
 
     public void Add(int x)
@@ -84,6 +94,7 @@ public class GameManager : MonoBehaviour
     public void Add1()
     {
         Add(1);
+        timeSinceAdd1 = 0f;
     }
 
 
@@ -114,12 +125,8 @@ public class GameManager : MonoBehaviour
 
         int bigSize = 55 * 2;
         float textSize = digitsText.fontSize + bigSize;
-        //textSize = int.Parse(textSize.ToString().Replace('6', '8'));
-        //textSize = int.Parse(textSize.ToString().Replace('7', '8'));
-        
+
         float textSizeSmall = digitsText.fontSize + (int)(bigSize / 4);
-        //textSizeSmall = int.Parse(textSizeSmall.ToString().Replace('6', '8'));
-        //textSizeSmall = int.Parse(textSizeSmall.ToString().Replace('7', '8'));
 
 
         string newText = text;
@@ -131,10 +138,8 @@ public class GameManager : MonoBehaviour
             if (i + 1 < text.Length)
             {
                 char d = text[i + 1];
-                //print("c: " + c + "d: " + d);
                 if (c == '6' && d == '7')
                 {
-                    //print("TRIGGERED");
                     newText = newText.Insert(i + 2, "!");
                     newText = newText.Insert(i, "@");
                 }
@@ -145,28 +150,13 @@ public class GameManager : MonoBehaviour
 
         newText = newText.Replace("@(6%^7&!", "@67!");
 
-        //print("newText: " + newText);
-
         newText = newText.Replace("@67!", $"<size={(textSize).ToString()}><b><color=#{col6string}>6</color><color=#{col7string}>7</color></b></size>");
         //newText = newText.Replace("!", "</b></size>");
         newText = newText.Replace("(", $"<color=#{col6string}><size={textSizeSmall.ToString()}>");
         newText = newText.Replace("%", "</size></color>");
         newText = newText.Replace("^", $"<color=#{col7string}><size={textSizeSmall.ToString()}>");
         newText = newText.Replace("&", "</size></color>");
-        
-        
-        
-        /*text = text.Replace("67", $"<size={(textSize).ToString()}><b>67</b></size>");
-        text = text.Replace("6", $"<color=#{col6string}><size={textSizeSmall.ToString()}6</size></color>");
-        text = text.Replace("7", $"<color=#{col7string}>7</color>");
-        
-        text = text.Replace($"<size=<color=#{col6string}>6</color>", $"<size=6");
-        text = text.Replace($"<size=<color=#{col7string}>7</color>", $"<size=7");*/
-        //text = text.Replace($"<size=<color=#{col7string}>7</color>", $"<size=7");
-        
 
-        
-        
         digitsText.text = newText;
 
     }
