@@ -29,8 +29,15 @@ public class BuyDigitButton : MonoBehaviour
         {
             GameManager.Ins.count -= cost;
             GameManager.Ins.digitCount++;
-
-            digitCountText.text = $"{GameManager.Ins.digitCount}/67";
         }
+    }
+
+    public void BuyMax()
+    {
+        int buyAmount = (int)(GameManager.Ins.count / cost);
+        int maxBuyAmount = 67 - GameManager.Ins.digitCount;
+        buyAmount = Mathf.Clamp(buyAmount, 0, maxBuyAmount);
+        GameManager.Ins.count -= buyAmount * cost;
+        GameManager.Ins.digitCount += buyAmount;
     }
 }

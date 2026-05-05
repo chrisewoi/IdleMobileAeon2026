@@ -9,19 +9,39 @@ public class GameManager : MonoBehaviour
 {
     public float count;
     public int digits;
-    public int digitCount;
+
+    private int _digitCount;
+    public int digitCount
+    {
+        get
+        {
+            return _digitCount;
+        }
+        set
+        {
+            _digitCount = Mathf.Clamp(value, 0, 67);
+            digitsCountText.text = $"{_digitCount}/67";
+        }
+    }
+    public int digitGeneratorCount;
     public float countBank;
 
     public Color col6;
     public Color col7;
     public Color col67;
     
+    public string col6string;
+    public string col7string;
+    public string col67string;
+    
     public TMP_Text countText;
     public TMP_Text digitsText;
     public TMP_Text digitsBankText;
+    public TMP_Text digitsCountText;
 
     public Button BuyDigitButton;
     public Button ResetDigitButton;
+    public Button BuyMaxDigitButton;
 
     private float timeSinceAdd1;
 
@@ -81,6 +101,13 @@ public class GameManager : MonoBehaviour
         if (countBank == 0) digitsBankText.text = "";
         countText.text = count.ToString("N0");
 
+        if (digitCount >= 67)
+        {
+            BuyDigitButton.gameObject.SetActive(false);
+            ResetDigitButton.gameObject.SetActive(true);
+        }
+        BuyMaxDigitButton.gameObject.SetActive(digitGeneratorCount>0);
+
         timeSinceAdd1 += Time.deltaTime;
     }
 
@@ -97,6 +124,10 @@ public class GameManager : MonoBehaviour
         timeSinceAdd1 = 0f;
     }
 
+    public void AddToBank(float x)
+    {
+        countBank += x;
+    }
 
     public void SetDigits()
     {
@@ -119,9 +150,9 @@ public class GameManager : MonoBehaviour
         countBank += (int)Mathf.Clamp((count67 * 67) - 12, 0, Mathf.Infinity);
 
         //modifies text with formatting
-        string col6string = ColorUtility.ToHtmlStringRGB(col6);
-        string col7string = ColorUtility.ToHtmlStringRGB(col7);
-        string col67string = ColorUtility.ToHtmlStringRGB(col67);
+        col6string = ColorUtility.ToHtmlStringRGB(col6);
+        col7string = ColorUtility.ToHtmlStringRGB(col7);
+        col67string = ColorUtility.ToHtmlStringRGB(col67);
 
         int bigSize = 55 * 2;
         float textSize = digitsText.fontSize + bigSize;
