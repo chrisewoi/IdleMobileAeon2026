@@ -965,6 +965,8 @@ MonoBehaviour:
   countText: {fileID: 1197420819}
   digitsText: {fileID: 1492072235}
   digitsBankText: {fileID: 1058220350}
+  BuyDigitButton: {fileID: 1699772065}
+  ResetDigitButton: {fileID: 1230386209}
 --- !u!1 &1058220348
 GameObject:
   m_ObjectHideFlags: 0
