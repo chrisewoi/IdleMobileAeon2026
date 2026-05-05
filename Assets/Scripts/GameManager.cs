@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TMPro;
 using Unity.Mathematics;
@@ -42,6 +43,10 @@ public class GameManager : MonoBehaviour
     public Button BuyDigitButton;
     public Button ResetDigitButton;
     public Button BuyMaxDigitButton;
+
+    public Transform digitGeneratorGroup;
+    public GameObject generatorPrefab;
+    public List<GameObject> digitGenerator;
 
     private float timeSinceAdd1;
 
@@ -92,21 +97,28 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float bankAdd = countBank * 1.5f * Mathf.Clamp01(timeSinceAdd1 - 0.5f) * Time.deltaTime;
+        float bankAdd = countBank * 2f * Mathf.Clamp01(timeSinceAdd1 - 0.3f) * Time.deltaTime;
         countBank -= bankAdd;
         countBank = Mathf.Clamp(countBank, 0, Mathf.Infinity);
         count += bankAdd;
 
-        digitsBankText.text = countBank.ToString("N0");
-        if (countBank == 0) digitsBankText.text = "";
+        digitsBankText.text = '+' + countBank.ToString("N0");
+        if (countBank < 1) digitsBankText.text = "";
         countText.text = count.ToString("N0");
-
-        if (digitCount >= 67)
-        {
-            BuyDigitButton.gameObject.SetActive(false);
-            ResetDigitButton.gameObject.SetActive(true);
-        }
+        
+        BuyDigitButton.gameObject.SetActive(!(digitCount >= 67));
+        ResetDigitButton.gameObject.SetActive(digitCount >= 67);
         BuyMaxDigitButton.gameObject.SetActive(digitGeneratorCount>0);
+
+        if (digitGeneratorCount > digitGenerator.Count)
+        {
+            int toSpawn = digitGeneratorCount - digitGenerator.Count;
+            for (int i = 0; i < toSpawn; i++)
+            {
+                GameObject g = Instantiate(generatorPrefab, digitGeneratorGroup);
+                digitGenerator.Add(g);
+            }
+        }
 
         timeSinceAdd1 += Time.deltaTime;
     }
@@ -121,6 +133,10 @@ public class GameManager : MonoBehaviour
     public void Add1()
     {
         Add(1);
+        foreach (GameObject g in digitGenerator)
+        {
+            g.GetComponent<DigitGenerator>().SetDigits();
+        }
         timeSinceAdd1 = 0f;
     }
 
