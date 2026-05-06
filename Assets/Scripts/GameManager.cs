@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TMPro;
@@ -48,6 +49,8 @@ public class GameManager : MonoBehaviour
     public GameObject generatorPrefab;
     public List<GameObject> digitGenerator;
 
+    public Canvas canvas;
+
     private float timeSinceAdd1;
 
     private static GameManager _instance;
@@ -97,6 +100,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(Input.GetKey(KeyCode.Space))Add1();
         float bankAdd = countBank * 2f * Mathf.Clamp01(timeSinceAdd1 - 0.3f) * Time.deltaTime;
         countBank -= bankAdd;
         countBank = Mathf.Clamp(countBank, 0, Mathf.Infinity);
@@ -117,6 +121,7 @@ public class GameManager : MonoBehaviour
             {
                 GameObject g = Instantiate(generatorPrefab, digitGeneratorGroup);
                 digitGenerator.Add(g);
+                StartCoroutine(AnimateGeneratorGeneration(digitsText.gameObject, g.transform));
             }
         }
 
@@ -206,5 +211,38 @@ public class GameManager : MonoBehaviour
 
         digitsText.text = newText;
 
+    }
+
+    
+    public IEnumerator AnimateGeneratorGeneration(GameObject g, Transform destination)
+    {
+        // set up the object
+        TMP_Text text = g.GetComponent<TMP_Text>();
+        string s = text.text;
+        GameObject obj = Instantiate(g, canvas.transform);
+        obj.transform.position = g.transform.position;
+        obj.transform.localScale = g.transform.localScale;
+        text.text = "";
+        obj.GetComponent<TMP_Text>().text = s;
+
+        Vector3 startPos = obj.transform.position;
+        Vector3 endPos = destination.position;
+        print("destination pos: " + destination.position);
+        print("destination locpos: " + destination.localPosition);
+        float t = 0;
+        float scale = 1;
+        while (t <= 1)//(destination.position - obj.transform.position).magnitude > 0.1f)
+        {
+            endPos = destination.position;
+            Vector3 newPosition = Vector3.Slerp(startPos, endPos, t);
+
+            obj.transform.position = newPosition;
+            scale = Mathf.Clamp01((1 - t)+0.1f);
+            obj.transform.localScale = new Vector3(scale, scale,scale);
+            
+            t += Time.deltaTime;
+            yield return null;
+        }
+        Destroy(obj);
     }
 }
