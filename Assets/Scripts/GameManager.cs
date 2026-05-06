@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
         {
             _digitCount = Mathf.Clamp(value, 0, 67);
             digitsCountText.text = $"{_digitCount}/67";
+            digitsCountText.gameObject.SetActive(!(_digitCount >= 67 && digitGeneratorCount >= 67));
         }
     }
 
@@ -38,17 +39,20 @@ public class GameManager : MonoBehaviour
             {
                 generatorCountText.text = "";
             }
+            
+            digitsCountText.gameObject.SetActive(!(_digitCount >= 67 && digitGeneratorCount >= 67));
+
         }
     }
     public float countBank;
 
     public Color col6;
     public Color col7;
-    public Color col67;
+    //public Color col67;
     
     public string col6string;
     public string col7string;
-    public string col67string;
+    //public string col67string;
     
     public TMP_Text countText;
     public TMP_Text digitsText;
@@ -188,7 +192,7 @@ public class GameManager : MonoBehaviour
         //modifies text with formatting
         col6string = ColorUtility.ToHtmlStringRGB(col6);
         col7string = ColorUtility.ToHtmlStringRGB(col7);
-        col67string = ColorUtility.ToHtmlStringRGB(col67);
+        //col67string = ColorUtility.ToHtmlStringRGB(col67);
 
         int bigSize = 55 * 2;
         float textSize = digitsText.fontSize + bigSize;
