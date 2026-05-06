@@ -53,6 +53,11 @@ public class GameManager : MonoBehaviour
     public string col6string;
     public string col7string;
     //public string col67string;
+
+    public float procChance;
+    public float roundedProcChance => Mathf.Round(procChance * 100f) / 100f;
+    public int forcedProcCount;
+    public bool reachedLayer3;
     
     public TMP_Text countText;
     public TMP_Text digitsText;
@@ -63,6 +68,9 @@ public class GameManager : MonoBehaviour
     public Button BuyDigitButton;
     public Button ResetDigitButton;
     public Button BuyMaxDigitButton;
+    public Button BuyMaxGeneratorButton;
+    public Button UpgradeChanceButton;
+    public Button UpgradeForceButton;
 
     public Transform digitGeneratorGroup;
     public GameObject generatorPrefab;
@@ -112,6 +120,8 @@ public class GameManager : MonoBehaviour
         timeSinceAdd1 = 1000f;
         countText.text = count.ToString();
         digitsText.text = "";
+        procChance = 0.488091f;
+        reachedLayer3 = false;
 
         Application.targetFrameRate = 120;
     }
@@ -120,6 +130,9 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         if(Input.GetKey(KeyCode.Space))Add1();
+
+        if (digitCount >= 67 && digitGeneratorCount >= 67) reachedLayer3 = true;
+        
         float bankAdd = countBank * 2f * Mathf.Clamp01(timeSinceAdd1 - 0.3f) * Time.deltaTime;
         countBank -= bankAdd;
         countBank = Mathf.Clamp(countBank, 0, Mathf.Infinity);
@@ -132,6 +145,9 @@ public class GameManager : MonoBehaviour
         BuyDigitButton.gameObject.SetActive(!(digitCount >= 67));
         ResetDigitButton.gameObject.SetActive(digitCount >= 67 && digitGeneratorCount <67);
         BuyMaxDigitButton.gameObject.SetActive(digitGeneratorCount>0);
+        BuyMaxGeneratorButton.gameObject.SetActive(reachedLayer3);
+        
+        // put forced proc here
 
         if (digitGeneratorCount > digitGenerator.Count)
         {
@@ -246,8 +262,6 @@ public class GameManager : MonoBehaviour
 
         Vector3 startPos = obj.transform.position;
         Vector3 endPos = destination.position;
-        print("destination pos: " + destination.position);
-        print("destination locpos: " + destination.localPosition);
         float t = 0;
         float scale = 1;
         while (t <= 1)//(destination.position - obj.transform.position).magnitude > 0.1f)

@@ -7,7 +7,7 @@ public class DigitGenerator : MonoBehaviour
     private bool is67;
     public TMP_Text text;
 
-    public float probability;
+    public float probability => GameManager.Ins.procChance;
 
     private string col6string => GameManager.Ins.col6string;
 
