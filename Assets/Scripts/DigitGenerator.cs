@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DigitGenerator : MonoBehaviour
 {
-    private bool is67;
+    public bool is67;
     public TMP_Text text;
 
     public float probability => GameManager.Ins.procChance;
@@ -29,6 +29,14 @@ public class DigitGenerator : MonoBehaviour
             text.text = "";
         }
 
+    }
+
+    public void ForceTrigger()
+    {
+        is67 = true;
+        GameManager.Ins.AddToBank(67);
+        text.text =
+            $"<b><color=#{col6string}>6</color><color=#{col7string}>7</color></b>";
     }
 }
 

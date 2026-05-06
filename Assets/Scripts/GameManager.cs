@@ -64,6 +64,8 @@ public class GameManager : MonoBehaviour
     public TMP_Text digitsBankText;
     public TMP_Text digitsCountText;
     public TMP_Text generatorCountText;
+    public TMP_Text triggerChanceText;
+    public TMP_Text forcedTriggerText;
 
     public Button BuyDigitButton;
     public Button ResetDigitButton;
@@ -122,6 +124,7 @@ public class GameManager : MonoBehaviour
         digitsText.text = "";
         procChance = 0.488091f;
         reachedLayer3 = false;
+        forcedProcCount = 0;
 
         Application.targetFrameRate = 120;
     }
@@ -148,6 +151,8 @@ public class GameManager : MonoBehaviour
         BuyMaxGeneratorButton.gameObject.SetActive(reachedLayer3);
         
         // put forced proc here
+        UpgradeForceButton.interactable = forcedProcCount < 49 && digitGeneratorCount >= 67;
+        UpgradeChanceButton.interactable = roundedProcChance < 0.67 && digitGeneratorCount >= 67;
 
         if (digitGeneratorCount > digitGenerator.Count)
         {
@@ -177,6 +182,8 @@ public class GameManager : MonoBehaviour
         {
             g.GetComponent<DigitGenerator>().SetDigits();
         }
+
+        StartCoroutine(ForceTriggers());
         timeSinceAdd1 = 0f;
     }
 
@@ -277,5 +284,33 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         Destroy(obj);
+    }
+
+    public void UpgradeChance(float percent)
+    {
+        procChance += percent;
+    }
+
+    public void UpgradeForceTriggers()
+    {
+        forcedProcCount+=7;
+        triggerChanceText.text = $"Current forced triggers: {forcedProcCount}/49";
+    }
+
+    public IEnumerator ForceTriggers()
+    {
+        int triggersRemaining = forcedProcCount;
+        foreach (GameObject generator in digitGenerator)
+        {
+            if (triggersRemaining <= 0) break;
+            
+            DigitGenerator digitGenerator = generator.GetComponent<DigitGenerator>();
+            if (!digitGenerator.is67)
+            {
+                digitGenerator.ForceTrigger();
+                triggersRemaining--;
+                yield return new WaitForSeconds(0.00833f);
+            }
+        }
     }
 }
