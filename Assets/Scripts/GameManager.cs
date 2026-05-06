@@ -15,17 +15,31 @@ public class GameManager : MonoBehaviour
     private int _digitCount;
     public int digitCount
     {
-        get
-        {
-            return _digitCount;
-        }
+        get => _digitCount;
         set
         {
             _digitCount = Mathf.Clamp(value, 0, 67);
             digitsCountText.text = $"{_digitCount}/67";
         }
     }
-    public int digitGeneratorCount;
+
+    private int _digitGeneratorCount;
+    public int digitGeneratorCount
+    {
+        get => _digitGeneratorCount;
+        set
+        {
+            _digitGeneratorCount = Mathf.Clamp(value, 0, 67);
+            if (_digitGeneratorCount > 10)
+            {
+                generatorCountText.text = $"{_digitGeneratorCount}/67";
+            }
+            else
+            {
+                generatorCountText.text = "";
+            }
+        }
+    }
     public float countBank;
 
     public Color col6;
@@ -40,6 +54,7 @@ public class GameManager : MonoBehaviour
     public TMP_Text digitsText;
     public TMP_Text digitsBankText;
     public TMP_Text digitsCountText;
+    public TMP_Text generatorCountText;
 
     public Button BuyDigitButton;
     public Button ResetDigitButton;
@@ -111,7 +126,7 @@ public class GameManager : MonoBehaviour
         countText.text = count.ToString("N0");
         
         BuyDigitButton.gameObject.SetActive(!(digitCount >= 67));
-        ResetDigitButton.gameObject.SetActive(digitCount >= 67);
+        ResetDigitButton.gameObject.SetActive(digitCount >= 67 && digitGeneratorCount <67);
         BuyMaxDigitButton.gameObject.SetActive(digitGeneratorCount>0);
 
         if (digitGeneratorCount > digitGenerator.Count)
