@@ -201,7 +201,10 @@ public class GameManager : MonoBehaviour
                 Destroy(digitGeneratorGroup.GetChild(i).gameObject);
             }
         }
-
+        Vector3 countTransformScale = Vector3.one * Mathf.Clamp(1.1f-timeSinceAdd1, 1f, 1.1f);
+        print(1.1f-timeSinceAdd1);
+        countTransform.localScale = countTransformScale;
+        
         timeSinceAdd1 += Time.deltaTime;
     }
 
@@ -212,8 +215,10 @@ public class GameManager : MonoBehaviour
         countText.text = count.ToString();
     }
 
+    public Transform countTransform;
     public void Add1()
     {
+        timeSinceAdd1 = 0f;
         generatorsTriggeredTally = 0;
         Add(1);
         foreach (GameObject g in digitGenerator)
@@ -222,7 +227,6 @@ public class GameManager : MonoBehaviour
         }
 
         StartCoroutine(ForceTriggers());
-        timeSinceAdd1 = 0f;
     }
 
     public void AddToBank(float x)
