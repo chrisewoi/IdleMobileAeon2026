@@ -6849,8 +6849,11 @@ MonoBehaviour:
   digitGeneratorGroup: {fileID: 31657346}
   generatorPrefab: {fileID: 3664976098404227041, guid: e3c20385c3add084fabd36689ca45bdc, type: 3}
   digitGenerator: []
+  debugPanel: {fileID: 1976071261}
   canvas: {fileID: 2146271486}
+  timeSinceAddBank: 0
   countTransform: {fileID: 1197420818}
+  countBankTransform: {fileID: 1058220349}
 --- !u!1 &847815594
 GameObject:
   m_ObjectHideFlags: 0

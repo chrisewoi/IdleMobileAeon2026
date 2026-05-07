@@ -91,9 +91,12 @@ public class GameManager : MonoBehaviour
     public GameObject generatorPrefab;
     public List<GameObject> digitGenerator;
 
+    public GameObject debugPanel;
+
     public Canvas canvas;
 
     private float timeSinceAdd1;
+    public float timeSinceAddBank;
 
     private static GameManager _instance;
     public static GameManager Ins
@@ -133,6 +136,7 @@ public class GameManager : MonoBehaviour
         digits = 0;
         countBank = 0;
         timeSinceAdd1 = 1000f;
+        timeSinceAddBank = 1000f;
         countText.text = count.ToString();
         digitsText.text = "";
         procChance = 0.488091f;
@@ -148,6 +152,7 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         if(Input.GetKey(KeyCode.Space))Add1();
+        if (Input.GetKeyDown(KeyCode.D)) debugPanel.SetActive(!debugPanel.activeInHierarchy);
 
         if (digitCount >= 67 && digitGeneratorCount >= 67) reachedLayer3 = true;
         UpgradeChanceButton.gameObject.SetActive(reachedLayer3);
@@ -163,7 +168,7 @@ public class GameManager : MonoBehaviour
         
         BuyDigitButton.gameObject.SetActive(!(digitCount >= 67));
         ResetDigitButton.gameObject.SetActive(digitCount >= 67 && digitGeneratorCount <67);
-        BuyMaxDigitButton.gameObject.SetActive(digitGeneratorCount>0);
+        BuyMaxDigitButton.gameObject.SetActive(reachedLayer3 || digitGeneratorCount>0);
         BuyMaxGeneratorButton.gameObject.SetActive(reachedLayer3);
 
         if (reachedLayer3) //&& digitGeneratorCount >= 67)
@@ -201,11 +206,18 @@ public class GameManager : MonoBehaviour
                 Destroy(digitGeneratorGroup.GetChild(i).gameObject);
             }
         }
-        Vector3 countTransformScale = Vector3.one * Mathf.Clamp(1.1f-timeSinceAdd1, 1f, 1.1f);
-        print(1.1f-timeSinceAdd1);
-        countTransform.localScale = countTransformScale;
+        
+        UpdateEffect(countTransform, timeSinceAdd1);
+        UpdateEffect(countBankTransform, timeSinceAddBank);
         
         timeSinceAdd1 += Time.deltaTime;
+        timeSinceAddBank += Time.deltaTime;
+    }
+
+    public void UpdateEffect(Transform t, float timeSince)
+    {
+        Vector3 transformScale = Vector3.one * Mathf.Clamp(1.1f-timeSince, 1f, 1.1f);
+        t.localScale = transformScale;
     }
 
     public void Add(int x)
@@ -216,6 +228,7 @@ public class GameManager : MonoBehaviour
     }
 
     public Transform countTransform;
+    public Transform countBankTransform;
     public void Add1()
     {
         timeSinceAdd1 = 0f;
@@ -232,6 +245,7 @@ public class GameManager : MonoBehaviour
     public void AddToBank(float x)
     {
         countBank += x;
+        if(x!=0)timeSinceAddBank = 0;
     }
 
     public void SetDigits()
@@ -250,9 +264,9 @@ public class GameManager : MonoBehaviour
         int count7 = Regex.Matches(textCount, "7").Count;
         
 
-        countBank += count6 * 6;
-        countBank += count7 * 7;
-        countBank += (int)Mathf.Clamp((count67 * 67) - 12, 0, Mathf.Infinity);
+        AddToBank(count6 * 6);
+        AddToBank(count7 * 7);
+        AddToBank((int)Mathf.Clamp((count67 * 67) - 12, 0, Mathf.Infinity));
 
         //modifies text with formatting
         col6string = ColorUtility.ToHtmlStringRGB(col6);
@@ -349,7 +363,8 @@ public class GameManager : MonoBehaviour
         
         int triggersRemaining = forcedProcCount;
         yield return new WaitForSeconds(preWait);
-        foreach (GameObject generator in digitGenerator)
+        //#warning
+        foreach (GameObject generator in digitGenerator) //THIS CAUSES CRASH IF MAKE SPACE BUTTON PRESSED WHILE COROUTINE RUNNING!!!
         {
             if (triggersRemaining <= 0) break;
             
@@ -358,7 +373,10 @@ public class GameManager : MonoBehaviour
             {
                 digitGenerator.ForceTrigger();
                 triggersRemaining--;
-                yield return new WaitForSeconds(waitBetweenProcs); 
+
+                int safetyCheck = digitGeneratorCount;
+                yield return new WaitForSeconds(waitBetweenProcs);
+                if (safetyCheck != digitGeneratorCount) StopCoroutine("ForceTriggers");
             }
         }
     }
