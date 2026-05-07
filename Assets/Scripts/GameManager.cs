@@ -58,6 +58,18 @@ public class GameManager : MonoBehaviour
     public float roundedProcChance => Mathf.Round(procChance * 100f) / 100f;
     public int forcedProcCount;
     public bool reachedLayer3;
+
+    private int _generatorsTriggeredTally;
+    public int generatorsTriggeredTally
+    {
+        get => _generatorsTriggeredTally;
+        set
+        {
+            _generatorsTriggeredTally = value;
+            if (bestTally < _generatorsTriggeredTally) bestTally = _generatorsTriggeredTally;
+        }
+    }
+    private float bestTally;
     
     public TMP_Text countText;
     public TMP_Text digitsText;
@@ -66,6 +78,7 @@ public class GameManager : MonoBehaviour
     public TMP_Text generatorCountText;
     public TMP_Text triggerChanceText;
     public TMP_Text forcedTriggerText;
+    public TMP_Text generatorTriggerCountText;
 
     public Button BuyDigitButton;
     public Button ResetDigitButton;
@@ -125,6 +138,8 @@ public class GameManager : MonoBehaviour
         procChance = 0.488091f;
         reachedLayer3 = false;
         forcedProcCount = 0;
+        generatorsTriggeredTally = 0;
+        bestTally = 0;
 
         Application.targetFrameRate = 120;
     }
@@ -135,7 +150,8 @@ public class GameManager : MonoBehaviour
         if(Input.GetKey(KeyCode.Space))Add1();
 
         if (digitCount >= 67 && digitGeneratorCount >= 67) reachedLayer3 = true;
-        
+        UpgradeChanceButton.gameObject.SetActive(reachedLayer3);
+        UpgradeForceButton.gameObject.SetActive(reachedLayer3);
         float bankAdd = countBank * 2f * Mathf.Clamp01(timeSinceAdd1 - 0.3f) * Time.deltaTime;
         countBank -= bankAdd;
         countBank = Mathf.Clamp(countBank, 0, Mathf.Infinity);
@@ -149,6 +165,15 @@ public class GameManager : MonoBehaviour
         ResetDigitButton.gameObject.SetActive(digitCount >= 67 && digitGeneratorCount <67);
         BuyMaxDigitButton.gameObject.SetActive(digitGeneratorCount>0);
         BuyMaxGeneratorButton.gameObject.SetActive(reachedLayer3);
+
+        if (reachedLayer3) //&& digitGeneratorCount >= 67)
+        {
+            generatorTriggerCountText.text = $"Generators triggered: {generatorsTriggeredTally}/<b><color=#FF8300>6</color><color=#389FB2>7</color></b>\nBest progress: {Mathf.Round(bestTally/67f*100)}%";
+        }
+        else
+        {
+            generatorTriggerCountText.text = "";
+        }
         
         // put forced proc here
         UpgradeForceButton.interactable = forcedProcCount < 49 && digitGeneratorCount >= 67;
@@ -165,6 +190,18 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (digitGeneratorCount < digitGenerator.Count)
+        {
+            int toDestroy = digitGenerator.Count - digitGeneratorCount;
+            print("toDestroy: " + toDestroy + "\nchildCount: " + digitGenerator.Count);
+            
+            for (int i = 0; i < toDestroy; i++)
+            {
+                digitGenerator.Remove(digitGeneratorGroup.GetChild(i).gameObject);
+                Destroy(digitGeneratorGroup.GetChild(i).gameObject);
+            }
+        }
+
         timeSinceAdd1 += Time.deltaTime;
     }
 
@@ -177,6 +214,7 @@ public class GameManager : MonoBehaviour
 
     public void Add1()
     {
+        generatorsTriggeredTally = 0;
         Add(1);
         foreach (GameObject g in digitGenerator)
         {
@@ -289,17 +327,24 @@ public class GameManager : MonoBehaviour
     public void UpgradeChance(float percent)
     {
         procChance += percent;
+        triggerChanceText.text = $"Current trigger chance: ~{roundedProcChance * 100}%";
+        digitGeneratorCount = 0;
     }
 
     public void UpgradeForceTriggers()
     {
         forcedProcCount+=7;
-        triggerChanceText.text = $"Current forced triggers: {forcedProcCount}/49";
+        forcedTriggerText.text = $"Current forced triggers: {forcedProcCount}/49";
+        digitGeneratorCount = 0;
     }
 
     public IEnumerator ForceTriggers()
     {
+        float preWait = 0.1f;
+        float waitBetweenProcs = 0.01f; //0.00833f
+        
         int triggersRemaining = forcedProcCount;
+        yield return new WaitForSeconds(preWait);
         foreach (GameObject generator in digitGenerator)
         {
             if (triggersRemaining <= 0) break;
@@ -309,8 +354,13 @@ public class GameManager : MonoBehaviour
             {
                 digitGenerator.ForceTrigger();
                 triggersRemaining--;
-                yield return new WaitForSeconds(0.00833f);
+                yield return new WaitForSeconds(waitBetweenProcs); 
             }
         }
+    }
+
+    public void AddGeneratorDebug(int i)
+    {
+        digitGeneratorCount+=i;
     }
 }

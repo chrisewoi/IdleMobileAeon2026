@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7699340985608511730}
   - component: {fileID: 558107599338116529}
   m_Layer: 5
-  m_Name: BG
+  m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 7171729798625334801}
   - component: {fileID: 1355081259508830280}
   m_Layer: 5
-  m_Name: BG (1)
+  m_Name: BG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -201,8 +201,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f35ab6c3f462084d947c0ac22862445, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DigitGenerator
+  is67: 0
   text: {fileID: 6634683673260414209}
-  probability: 0.488091
+  bg: {fileID: 1355081259508830280}
+  forceColor: {r: 0.07450981, g: 0.3137255, b: 0.07450981, a: 1}
 --- !u!1 &6681429358081649261
 GameObject:
   m_ObjectHideFlags: 0
