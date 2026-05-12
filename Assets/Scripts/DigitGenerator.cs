@@ -43,10 +43,11 @@ public class DigitGenerator : MonoBehaviour
     public void ForceTrigger()
     {
         bg.color = forceColor;
-        if(GameManager.Ins.procChance>Random.value)is67 = true;
+        bool successfulReroll = Random.value < probability;
+        if(successfulReroll)is67 = true;
         AddTo67Tally(); // only add if it hasn't already been counted
         GameManager.Ins.AddToBank(67);
-        text.text =
+        if(is67)text.text =
             $"<b><color=#{col6string}>6</color><color=#{col7string}>7</color></b>";
     }
 
