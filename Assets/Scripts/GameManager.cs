@@ -9,6 +9,13 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
+/// <summary>
+/// Remove Generators. Future generators increased trigger chance by 6%
+///
+/// Add when you reach 100% all the generators move towards the middle golden 67 appears
+/// 
+/// </summary>
+
     public float count;
     public int digits;
 
