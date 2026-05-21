@@ -2,14 +2,17 @@ using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Vector2 = UnityEngine.Vector2;
 
 public class DigitGenerator : MonoBehaviour
 {
     public bool is67;
     public TMP_Text text;
     public Image bg;
-    public Color forceColor;
+    public Color forceColor1,forceColor2,forceColor3,forceColor4,forceColor5;
     private Color defaultColor;
+    public Vector2 startPos;
+    public int forceCount;
 
     public float probability => GameManager.Ins.procChance;
 
@@ -21,6 +24,8 @@ public class DigitGenerator : MonoBehaviour
     void Start()
     {
         defaultColor = bg.color;
+        startPos = transform.position;
+        forceCount = 0;
     }
     public void SetDigits()
     {
@@ -42,7 +47,14 @@ public class DigitGenerator : MonoBehaviour
 
     public void ForceTrigger()
     {
-        bg.color = forceColor;
+        forceCount++;
+        switch (forceCount)
+        {
+            case 1:
+                bg.color = forceColor1;
+                return;
+        }
+        bg.color = forceColor1;
         bool successfulReroll = Random.value < probability;
         if(successfulReroll)is67 = true;
         AddTo67Tally(); // only add if it hasn't already been counted

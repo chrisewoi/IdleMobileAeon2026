@@ -59,7 +59,7 @@ public class MoveToMouse : MonoBehaviour
         
         float colorLerp = Mathf.InverseLerp(1f, maxGravity, clickPower);
         //print(colorLerp);
-        buttonImage.color = Color.Lerp(originalColor, glowColor, colorLerp);
+        if(buttonImage)buttonImage.color = Color.Lerp(originalColor, glowColor, colorLerp);
 
         // Mouse screen position
         Vector3 mousePos = Input.mousePosition;

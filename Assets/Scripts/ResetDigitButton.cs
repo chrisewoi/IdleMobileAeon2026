@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -5,10 +6,12 @@ public class ResetDigitButton : MonoBehaviour
 {
     private Button button;
     public Button maxButton;
+    public TMP_Text maxButtonText;
     public int digitGeneratorCount => GameManager.Ins.digitGeneratorCount;
     void Start()
     {
         button = GetComponent<Button>();
+        maxButtonText = maxButton.GetComponentInChildren<TMP_Text>();
     }
 
 
@@ -31,6 +34,11 @@ public class ResetDigitButton : MonoBehaviour
 
     void Update()
     {
-        maxButton.interactable = (int)(GameManager.Ins.count / cost) != 0;
+        int maxBuyable = (int)(GameManager.Ins.count / cost);
+        int digitGenCount = GameManager.Ins.digitGeneratorCount;
+        if (maxBuyable + digitGenCount > 67) maxBuyable = 67 - digitGenCount;
+        bool interactable = maxBuyable != 0;
+        maxButton.interactable = interactable;
+        maxButtonText.text = interactable ? $"Buy\nMax\n(<u>{maxBuyable}</u>)":"Buy\nMax";
     }
 }

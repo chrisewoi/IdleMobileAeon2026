@@ -65,6 +65,8 @@ public class GameManager : MonoBehaviour
     public float roundedProcChance => Mathf.Round(procChance * 100f) / 100f;
     public int forcedProcCount;
     public bool reachedLayer3;
+    public bool gameWon;
+    private bool gameWonFirstTrigger;
 
     private int _generatorsTriggeredTally;
     public int generatorsTriggeredTally
@@ -97,6 +99,9 @@ public class GameManager : MonoBehaviour
     public Transform digitGeneratorGroup;
     public GameObject generatorPrefab;
     public List<GameObject> digitGenerator;
+
+    public GameObject golden67;
+    public GameObject golden67Shapes;
 
     public GameObject debugPanel;
 
@@ -151,6 +156,10 @@ public class GameManager : MonoBehaviour
         forcedProcCount = 0;
         generatorsTriggeredTally = 0;
         bestTally = 0;
+        gameWon = false;
+        gameWonFirstTrigger = false;
+        golden67.SetActive(false);
+        golden67Shapes.SetActive(false);
 
         Application.targetFrameRate = 120;
     }
@@ -181,6 +190,19 @@ public class GameManager : MonoBehaviour
         if (reachedLayer3) //&& digitGeneratorCount >= 67)
         {
             generatorTriggerCountText.text = $"Generators triggered: {generatorsTriggeredTally}/<b><color=#FF8300>6</color><color=#389FB2>7</color></b>\nBest progress: {Mathf.Round(bestTally/67f*100)}%";
+            if (bestTally >= 67) gameWon = true;
+
+            if (gameWon)
+            {
+                if (!gameWonFirstTrigger)
+                {
+                    // only triggers once on win
+                    gameWonFirstTrigger = true;
+                    StartCoroutine(AnimateGeneratorGolden(digitGeneratorGroup.gameObject, golden67Shapes.transform));
+                }
+                golden67.SetActive(true);
+                golden67Shapes.SetActive(true);
+            }
         }
         else
         {
@@ -347,6 +369,30 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         Destroy(obj);
+    }
+
+    public IEnumerator AnimateGeneratorGolden(GameObject g, Transform destination)
+    {
+        float animProgress = 0;
+        Transform[] gens = new Transform[g.transform.childCount];
+        for (int i = 0; i < g.transform.childCount; i++)
+        {
+            gens[i] = g.transform.GetChild(i);
+        }
+        
+        g.GetComponent<GridLayoutGroup>().enabled = false;
+        while (animProgress < 4)
+        {
+            foreach (Transform gen in gens)
+            {
+                gen.position = Vector2.MoveTowards(gen.position, golden67Shapes.transform.position, Time.deltaTime);
+            }
+
+            animProgress += Time.deltaTime;
+            yield return null;
+        }
+        yield return null;
+        foreach (Transform gen in gens) Destroy(gen);
     }
 
     public void UpgradeChance(float percent)
