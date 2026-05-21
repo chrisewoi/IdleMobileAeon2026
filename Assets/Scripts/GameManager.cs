@@ -169,7 +169,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Space)&& debugPanel.activeInHierarchy)
         {
             Add1();
             SetDigits();

@@ -7606,7 +7606,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc71f830d12a6ac43bc1742c6444e003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  count: 50
+  count: 0
   digits: 1
   countBank: 0
   col6: {r: 1, g: 0.51359504, b: 0, a: 0}
