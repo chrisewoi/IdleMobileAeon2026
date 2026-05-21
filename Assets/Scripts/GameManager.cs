@@ -167,7 +167,11 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKey(KeyCode.Space))Add1();
+        if (Input.GetKey(KeyCode.Space))
+        {
+            Add1();
+            SetDigits();
+        }
         if (Input.GetKeyDown(KeyCode.D)) debugPanel.SetActive(!debugPanel.activeInHierarchy);
 
         if (digitCount >= 67 && digitGeneratorCount >= 67) reachedLayer3 = true;
@@ -210,8 +214,8 @@ public class GameManager : MonoBehaviour
         }
         
         // put forced proc here
-        UpgradeForceButton.interactable = forcedProcCount < 49 && digitGeneratorCount >= 67;
-        UpgradeChanceButton.interactable = roundedProcChance < 0.67 && digitGeneratorCount >= 67;
+        UpgradeForceButton.interactable = forcedProcCount < 42 && digitGeneratorCount >= 67;
+        UpgradeChanceButton.interactable = roundedProcChance < 0.5 && digitGeneratorCount >= 67;
 
         if (digitGeneratorCount > digitGenerator.Count)
         {
@@ -258,6 +262,7 @@ public class GameManager : MonoBehaviour
 
     public Transform countTransform;
     public Transform countBankTransform;
+    private Coroutine forceTriggerRoutine;
     public void Add1()
     {
         timeSinceAdd1 = 0f;
@@ -268,7 +273,11 @@ public class GameManager : MonoBehaviour
             g.GetComponent<DigitGenerator>().SetDigits();
         }
 
-        StartCoroutine(ForceTriggers());
+        if (forceTriggerRoutine != null)
+        {
+            StopCoroutine(forceTriggerRoutine);
+        }
+        forceTriggerRoutine = StartCoroutine(ForceTriggers());
     }
 
     public void AddToBank(float x)
@@ -358,6 +367,7 @@ public class GameManager : MonoBehaviour
         float scale = 1;
         while (t <= 1)//(destination.position - obj.transform.position).magnitude > 0.1f)
         {
+            if(destination == null) Destroy(obj);
             endPos = destination.position;
             Vector3 newPosition = Vector3.Slerp(startPos, endPos, t);
 
@@ -392,20 +402,20 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         yield return null;
-        foreach (Transform gen in gens) Destroy(gen);
+        foreach (Transform gen in gens) Destroy(gen.gameObject);
     }
 
     public void UpgradeChance(float percent)
     {
         procChance += percent;
-        triggerChanceText.text = $"Current trigger chance: ~{roundedProcChance * 100}%";
+        triggerChanceText.text = $"Current trigger chance: ~{Mathf.Round(procChance * 100f * 100f)/100f}%";
         digitGeneratorCount = 0;
     }
 
     public void UpgradeForceTriggers()
     {
         forcedProcCount+=7;
-        forcedTriggerText.text = $"Current forced triggers: {forcedProcCount}/49";
+        forcedTriggerText.text = $"Current forced triggers: {forcedProcCount}/42";
         digitGeneratorCount = 0;
     }
 
@@ -417,19 +427,29 @@ public class GameManager : MonoBehaviour
         int triggersRemaining = forcedProcCount;
         yield return new WaitForSeconds(preWait);
         //#warning
-        foreach (GameObject generator in digitGenerator) //THIS CAUSES CRASH IF MAKE SPACE BUTTON PRESSED WHILE COROUTINE RUNNING!!!
+        bool all67s = false;
+        while (triggersRemaining > 0 && !all67s)
         {
-            if (triggersRemaining <= 0) break;
-            
-            DigitGenerator digitGenerator = generator.GetComponent<DigitGenerator>();
-            if (!digitGenerator.is67)
+            all67s = true;
+            foreach (GameObject generator in digitGenerator.ToArray()) //THIS CAUSES CRASH IF MAKE SPACE BUTTON PRESSED WHILE COROUTINE RUNNING!!!
             {
-                digitGenerator.ForceTrigger();
-                triggersRemaining--;
+                if (triggersRemaining <= 0)
+                {
+                    StopCoroutine(nameof(ForceTriggers));
+                    break;
+                }
+            
+                DigitGenerator digitGenerator = generator.GetComponent<DigitGenerator>();
+                if (!digitGenerator.is67)
+                {
+                    all67s = false;
+                    digitGenerator.ForceTrigger();
+                    triggersRemaining--;
 
-                int safetyCheck = digitGeneratorCount;
-                yield return new WaitForSeconds(waitBetweenProcs);
-                if (safetyCheck != digitGeneratorCount) StopCoroutine("ForceTriggers");
+                    int safetyCheck = digitGeneratorCount;
+                    yield return new WaitForSeconds(waitBetweenProcs);
+                    if (safetyCheck != digitGeneratorCount) StopCoroutine(nameof(ForceTriggers));
+                }
             }
         }
     }

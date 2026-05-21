@@ -204,7 +204,13 @@ MonoBehaviour:
   is67: 0
   text: {fileID: 6634683673260414209}
   bg: {fileID: 1355081259508830280}
-  forceColor: {r: 0.07450981, g: 0.3137255, b: 0.07450981, a: 1}
+  forceColor1: {r: 0.07450981, g: 0.3137255, b: 0.07450981, a: 1}
+  forceColor2: {r: 0.07450979, g: 0.25790855, b: 0.3137255, a: 1}
+  forceColor3: {r: 0.383, g: 0.09096248, b: 0.37813264, a: 1}
+  forceColor4: {r: 0.404, g: 0.095949985, b: 0.095949985, a: 1}
+  forceColor5: {r: 0.433, g: 0.3119404, b: 0.10283748, a: 1}
+  startPos: {x: 0, y: 0}
+  forceCount: 0
 --- !u!1 &6681429358081649261
 GameObject:
   m_ObjectHideFlags: 0

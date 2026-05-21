@@ -29,6 +29,7 @@ public class DigitGenerator : MonoBehaviour
     }
     public void SetDigits()
     {
+        forceCount = 0;
         bg.color = defaultColor;
         is67 = Random.value < probability; // chance of a 67 appearing in a 67 digit string
         
@@ -47,25 +48,44 @@ public class DigitGenerator : MonoBehaviour
 
     public void ForceTrigger()
     {
-        forceCount++;
+        if(!is67)forceCount++;
         switch (forceCount)
         {
             case 1:
                 bg.color = forceColor1;
-                return;
+                break;
+            case 2:
+                bg.color = forceColor2;
+                break;
+            case 3:
+                bg.color = forceColor3;
+                break;
+            case 4:
+                bg.color = forceColor4;
+                break;
+            case 5:
+                bg.color = forceColor5;
+                break;
+            default:
+                bg.color = forceColor1;
+                break;
         }
-        bg.color = forceColor1;
+        //bg.color = forceColor1;
         bool successfulReroll = Random.value < probability;
         if(successfulReroll)is67 = true;
         AddTo67Tally(); // only add if it hasn't already been counted
-        GameManager.Ins.AddToBank(67);
+        if(successfulReroll)GameManager.Ins.AddToBank(67);
         if(is67)text.text =
             $"<b><color=#{col6string}>6</color><color=#{col7string}>7</color></b>";
     }
 
     private void AddTo67Tally()
     {
-        if (is67) GameManager.Ins.generatorsTriggeredTally++;
+        if (is67)
+        {
+            GameManager.Ins.generatorsTriggeredTally++;
+            forceCount = 0;
+        }
     }
 }
 

@@ -19,7 +19,7 @@ public class MoveToMouse : MonoBehaviour
         cam = Camera.main;
         forceField = GetComponent<ParticleSystemForceField>();
         clickPower = 1f;
-        originalColor = buttonImage.color;
+        if(buttonImage)originalColor = buttonImage.color;
         
         lastMousePos = Input.mousePosition;
     }
