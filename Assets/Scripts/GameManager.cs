@@ -4,6 +4,8 @@ using System.Text.RegularExpressions;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -368,12 +370,12 @@ public class GameManager : MonoBehaviour
         while (t <= 1)//(destination.position - obj.transform.position).magnitude > 0.1f)
         {
             if(destination == null) Destroy(obj);
-            endPos = destination.position;
+            if(destination)endPos = destination.position;
             Vector3 newPosition = Vector3.Slerp(startPos, endPos, t);
 
-            obj.transform.position = newPosition;
+            if(obj)obj.transform.position = newPosition;
             scale = Mathf.Clamp01((1 - t)+0.1f);
-            obj.transform.localScale = new Vector3(scale, scale,scale);
+            if(obj)obj.transform.localScale = new Vector3(scale, scale,scale);
             
             t += Time.deltaTime;
             yield return null;
@@ -381,6 +383,9 @@ public class GameManager : MonoBehaviour
         Destroy(obj);
     }
 
+    public Volume volume;
+    private LensDistortion lensDistortion;
+    private ChromaticAberration chromAb;
     public IEnumerator AnimateGeneratorGolden(GameObject g, Transform destination)
     {
         float animProgress = 0;
@@ -389,10 +394,19 @@ public class GameManager : MonoBehaviour
         {
             gens[i] = g.transform.GetChild(i);
         }
-        
+
+        float distortion;
+        float chromAbAmount;
+        volume.profile.TryGet<LensDistortion>(out LensDistortion lensDistortion);
+        volume.profile.TryGet<ChromaticAberration>(out ChromaticAberration chromAb);
         g.GetComponent<GridLayoutGroup>().enabled = false;
         while (animProgress < 4)
         {
+            distortion = -Mathf.Sin((animProgress/4f) * Mathf.PI * 2f);
+            chromAbAmount = Mathf.Lerp(0.1f, 0.2f, animProgress) +
+                            Mathf.Sin(animProgress * Mathf.PI) * 0.85f;
+            lensDistortion.intensity.Override(distortion);
+            chromAb.intensity.Override(chromAbAmount);
             foreach (Transform gen in gens)
             {
                 gen.position = Vector2.MoveTowards(gen.position, golden67Shapes.transform.position, Time.deltaTime);

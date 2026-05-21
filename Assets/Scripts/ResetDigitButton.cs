@@ -6,7 +6,7 @@ public class ResetDigitButton : MonoBehaviour
 {
     private Button button;
     public Button maxButton;
-    public TMP_Text maxButtonText;
+    private TMP_Text maxButtonText;
     public int digitGeneratorCount => GameManager.Ins.digitGeneratorCount;
     void Start()
     {
